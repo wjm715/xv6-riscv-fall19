@@ -90,11 +90,16 @@ kalloc(void)
   {
     for (int i = 0; i < NCPU; i++)
     {
+      if(i == n) continue;
       acquire(&kmem.lock[i]);
       r = kmem.freelist[i];
-      if(r) kmem.freelist[i] = r->next;
+      if(r)
+      {
+        kmem.freelist[i] = r->next;
+        release(&kmem.lock[i]);
+        break;
+      }
       release(&kmem.lock[i]);
-      if(r) break;
     }
   }
 
